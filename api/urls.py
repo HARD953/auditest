@@ -59,6 +59,4 @@ urlpatterns = [
     path('fquartier/', QuartierListe.as_view(), name='quartier1'),
     path('quartier/', QuartierCommune.as_view(), name='quartier2'),
     path('quartier/<int:pk>/', QuartierCommuneDetail.as_view(), name='quartier3'),
-
-    
 ]
