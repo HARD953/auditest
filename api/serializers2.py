@@ -24,6 +24,7 @@ class MarqueSerializerF(serializers.ModelSerializer):
     class Meta:
         model = Marque
         fields = ['marque']
+        
 class SiteSerializerF(serializers.ModelSerializer):
     class Meta:
         model = Site

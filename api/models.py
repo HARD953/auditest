@@ -6,8 +6,10 @@ from django.db.models.signals import pre_save
 from django.utils import timezone
 
 class SupportPublicitaire(models.Model):
+    entreprise = models.CharField(max_length=50, blank=True)
     type_support = models.CharField(max_length=50)
-    surface= models.CharField(max_length=50)
+    nombre_face = models.FloatField(blank=True)
+    surface= models.FloatField(blank=True)
     create = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
@@ -17,11 +19,12 @@ class Taux(models.Model):
     TTAP = models.CharField(max_length=50)
     TTPAT= models.CharField(max_length=50)
     TAE = models.CharField(max_length=50)
-    TAEAT = models.CharField(max_length=50)
+    TAEAT = models.CharField(max_length=50) 
     def __str__(self):
         return f"Donnée #{self.TTAP}_{self.TTPAT}_{self.TAE}_{self.TAEAT}"
     
 class Marque(models.Model):
+    entreprise = models.CharField(max_length=50, blank=True)
     marque = models.CharField(max_length=50)
     surface = models.CharField(max_length=50, blank=True)
     create = models.DateTimeField(auto_now_add=True)
@@ -56,15 +59,56 @@ class Visibilite(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.visibilite
-    
+
+class District(models.Model):
+    district = models.CharField(max_length=50,default="Abidjan")
+    tauxODP = models.CharField(max_length=50,default="6")
+    tauxTSP=models.CharField(max_length=50,default="7")
+    tauxAP = models.CharField(max_length=50)
+    tauxAPA= models.CharField(max_length=50)
+    tauxAPT = models.CharField(max_length=50)
+    tauxAE = models.CharField(max_length=50)
+    tauxAEA = models.CharField(max_length=50)
+    tauxAET = models.CharField(max_length=50)
+    create = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.district
+
+class Region(models.Model):
+    district = models.CharField(max_length=50,default="Abidjan")
+    region = models.CharField(max_length=50,default="Abidjan")
+    tauxODP = models.CharField(max_length=50,default="6")
+    tauxTSP=models.CharField(max_length=50,default="7")
+    tauxAP = models.CharField(max_length=50)
+    tauxAPA= models.CharField(max_length=50)
+    tauxAPT = models.CharField(max_length=50)
+    tauxAE = models.CharField(max_length=50)
+    tauxAEA = models.CharField(max_length=50)
+    tauxAET = models.CharField(max_length=50)
+    create = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.region
+
 class Ville(models.Model):
     ville = models.CharField(max_length=50,default="Abidjan")
+    tauxODP = models.CharField(max_length=50,default="6")
+    tauxTSP=models.CharField(max_length=50,default="7")
+    tauxAP = models.CharField(max_length=50)
+    tauxAPA= models.CharField(max_length=50)
+    tauxAPT = models.CharField(max_length=50)
+    tauxAE = models.CharField(max_length=50)
+    tauxAEA = models.CharField(max_length=50)
+    tauxAET = models.CharField(max_length=50)
     create = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.ville
 
 class Commune(models.Model):
+    district = models.CharField(max_length=50,default="Abidjan")
+    region = models.CharField(max_length=50,default="Abidjan")
     ville = models.CharField(max_length=50,default="Abidjan")
     commune = models.CharField(max_length=50,default="Abidjan")
     tauxODP = models.CharField(max_length=50,default="6")
@@ -77,32 +121,59 @@ class Commune(models.Model):
     tauxAET = models.CharField(max_length=50)
     create = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.commune
+
+class Village(models.Model):
+    commune = models.CharField(max_length=50,default="Abidjan")
+    village = models.CharField(max_length=50,default="Abidjan")
+    create = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.quartier
 
 class Quartier(models.Model):
     commune = models.CharField(max_length=50,default="Abidjan")
+    village = models.CharField(max_length=50,default="Abidjan")
     quartier= models.CharField(max_length=50,default="Rue 12")
     create = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.quartier
 
+class Affectation(models.Model):
+    agent=models.CharField(max_length=100,blank=False,default='issa')
+    commune = models.CharField(max_length=50,default="Abidjan")
+    entreprise=models.CharField(max_length=50,default="Rue 12")
+    create=models.DateField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status=models.BooleanField(default=False)
+    def __str__(self):
+        return f"Agent {self.agent} est Affecté pour la collecte des supports de {self.entreprise} dans la commune de {self.commune}"
+
 # class Entreprise(models.Model):
 #     agent=models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=1)
 #     nom = models.CharField(max_length=50,default="Orange")
 #     emplacement = models.CharField(max_length=50,default="6")
-    def __str__(self):
-        return self.commune
+
+from django.db import models
 
 class DonneeCollectee(models.Model):
-    agent = models.ForeignKey(CustomUser,null=True, on_delete=models.SET_NULL)
+    agent = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     entreprise = models.CharField(max_length=50, blank=True)
     Marque = models.CharField(max_length=50, blank=True)
-    ville = models.CharField(max_length=50, blank=True)  # Utilise ForeignKey pour lier à la table Commune
-    commune = models.CharField(max_length=50, blank=True)  # Utilise ForeignKey pour lier à la table Commune
+    ville = models.CharField(max_length=50, blank=True, default="Abidjan")
+    commune = models.CharField(max_length=50, blank=True, default="Abidjan")
+    region = models.CharField(max_length=50, blank=True, default="Abidjan")
+    district = models.CharField(max_length=50, blank=True, default="Abidjan")
+    village = models.CharField(max_length=50, blank=True, default="Abidjan")
     quartier = models.CharField(max_length=50, blank=True)
+    nomsite = models.CharField(max_length=50, blank=True)
     type_support = models.CharField(max_length=50, blank=True)
-    surface = models.CharField(max_length=50, blank=True)
-    surfaceODP = models.CharField(max_length=50, blank=True)
+    surface = models.FloatField(blank=True, null=True)
+    nombre_support = models.FloatField(blank=True, null=True)
+    nombre_face = models.FloatField(blank=True, null=True)
+    surfaceODP = models.FloatField(blank=True, null=True)
     canal = models.CharField(max_length=50, blank=True)
     etat_support = models.CharField(max_length=50, blank=True)
     typesite = models.CharField(max_length=50, blank=True)
@@ -110,7 +181,8 @@ class DonneeCollectee(models.Model):
     description = models.CharField(max_length=50, blank=True)
     observation = models.CharField(max_length=50, blank=True)
     date_collecte = models.DateTimeField(auto_now_add=True, blank=True)
-    image_support = models.ImageField(upload_to='collecte_images/', null=True, blank=True)
+    image_support_1 = models.ImageField(upload_to='collecte_images/', null=True, blank=True)
+    image_support_2 = models.ImageField(upload_to='collecte_images/', null=True, blank=True)
     signature = models.ImageField(upload_to='collecte_images/', null=True, blank=True)
     signature1 = models.ImageField(upload_to='collecte_images/', null=True, blank=True)
     Rnom = models.CharField(max_length=50, blank=True)
@@ -121,7 +193,7 @@ class DonneeCollectee(models.Model):
     Scontact = models.CharField(max_length=50, blank=True)
     duree = models.CharField(max_length=50, blank=True)
     anciennete = models.BooleanField(default=False, blank=True)
-    TSP = models.CharField(max_length=50, default=12, blank=True)
+    TSP = models.CharField(max_length=50, default="12", blank=True)
     ODP = models.BooleanField(default=False, blank=True)
     AP = models.BooleanField(default=False, blank=True)
     APA = models.BooleanField(default=False, blank=True)
@@ -129,18 +201,15 @@ class DonneeCollectee(models.Model):
     AE = models.BooleanField(default=False, blank=True)
     AEA = models.BooleanField(default=False, blank=True)
     AET = models.BooleanField(default=False, blank=True)
-    tauxAP = models.BooleanField(default=False, blank=True)
-    tauxAPA = models.BooleanField(default=False, blank=True)
-    tauxAPT = models.BooleanField(default=False, blank=True)
-    tauxAE = models.BooleanField(default=False, blank=True)
-    tauxAEA = models.BooleanField(default=False, blank=True)
-    tauxAET = models.BooleanField(default=False, blank=True)
-    ODP_value = models.CharField(max_length=50, default=1, blank=True)
+    tauxCommune = models.BooleanField(default=False, blank=True)
+    tauxRegion = models.BooleanField(default=False, blank=True)
+    tauxDistrict = models.BooleanField(default=False, blank=True)
+    ODP_value = models.CharField(max_length=50, default="1", blank=True)
     create = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    latitude = models.FloatField(blank=True)
-    longitude = models.FloatField(blank=True)
-    is_deleted= models.BooleanField(default=False)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
@@ -156,60 +225,85 @@ class DonneeCollectee(models.Model):
             try:
                 support = SupportPublicitaire.objects.get(type_support=self.type_support)
                 self.surface = support.surface
+                self.nombre_face = support.nombre_face
             except SupportPublicitaire.DoesNotExist:
-                self.surface=0
+                self.surface = 0
+                self.nombre_face = 1  # Valeur par défaut pour éviter des erreurs de multiplication
+
         # Calculer TSP et ODP_value
-        taux_commune = Commune.objects.get(commune=self.commune)
-        self.tauxODP1 = taux_commune.tauxODP
-        self.tauxAP1 = taux_commune.tauxAP
-        self.tauxAPA1 = taux_commune.tauxAPA
-        self.tauxAPT1 = taux_commune.tauxAPT
-        self.tauxAE1 = taux_commune.tauxAE
-        self.tauxAEA1 = taux_commune.tauxAEA
-        self.tauxAET1 = taux_commune.tauxAET  
-        if self.tauxAP:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAP1)
-        elif self.tauxAPA:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAPA1)
-        elif self.tauxAPT:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAPT1)
-        elif self.tauxAE:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAE1)
-        elif self.tauxAEA:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAEA1)
-        elif self.tauxAET:
-            self.TSP = float(self.surface) * float(self.duree) * float(self.tauxAET1)
-        else: 
-            self.TSP = float(self.surface) * float(self.duree)
+        tauxODP1, tauxAP1, tauxAPA1, tauxAPT1, tauxAE1, tauxAEA1, tauxAET1 = [0] * 7
+
+        if self.tauxCommune:
+            commune = Commune.objects.get(commune=self.commune)
+            tauxODP1, tauxAP1, tauxAPA1, tauxAPT1, tauxAE1, tauxAEA1, tauxAET1 = (
+                commune.tauxODP,
+                commune.tauxAP,
+                commune.tauxAPA,
+                commune.tauxAPT,
+                commune.tauxAE,
+                commune.tauxAEA,
+                commune.tauxAET,
+            )
+        elif self.tauxRegion:
+            region = Region.objects.get(region=self.region)
+            tauxODP1, tauxAP1, tauxAPA1, tauxAPT1, tauxAE1, tauxAEA1, tauxAET1 = (
+                region.tauxODP,
+                region.tauxAP,
+                region.tauxAPA,
+                region.tauxAPT,
+                region.tauxAE,
+                region.tauxAEA,
+                region.tauxAET,
+            )
+        elif self.tauxDistrict:
+            district = District.objects.get(district=self.district)
+            tauxODP1, tauxAP1, tauxAPA1, tauxAPT1, tauxAE1, tauxAEA1, tauxAET1 = (
+                district.tauxODP,
+                district.tauxAP,
+                district.tauxAPA,
+                district.tauxAPT,
+                district.tauxAE,
+                district.tauxAEA,
+                district.tauxAET,
+            )
+
+        # Initialiser les valeurs pour TSP et ODP_value
+        duree_value = 0
+        nombre_face_value = self.nombre_face if self.nombre_face else 1  # Valeur par défaut
+
+        try:
+            duree_value = float(self.duree) if self.duree else 0  # Valeur par défaut
+        except ValueError:
+            duree_value = 0  # Gérer l'erreur de conversion
+
+        # Calculer TSP
+        if self.AP:
+            self.TSP = float(self.surface) * duree_value * float(tauxAP1) * nombre_face_value * float(self.nombre_face)
+        elif self.APA:
+            self.TSP = float(self.surface) * duree_value * float(tauxAPA1) * nombre_face_value * float(self.nombre_face)
+        elif self.APT:
+            self.TSP = float(self.surface) * duree_value * float(tauxAPT1) * nombre_face_value * float(self.nombre_face)
+        elif self.AE:
+            self.TSP = float(self.surface) * duree_value * float(tauxAE1) * nombre_face_value * float(self.nombre_face)
+        elif self.AEA:
+            self.TSP = float(self.surface) * duree_value * float(tauxAEA1) * nombre_face_value * float(self.nombre_face)
+        elif self.AET:
+            self.TSP = float(self.surface) * duree_value * float(tauxAET1) * nombre_face_value * float(self.nombre_face)
+        else:
+            self.TSP = float(self.surface) * duree_value  # Valeur par défaut
+
+        # Calculer ODP_value
         if self.ODP:
-            self.ODP_value = float(self.surfaceODP) * float(self.duree) * float(self.tauxODP1)
+            try:
+                self.ODP_value = float(self.surfaceODP) * duree_value * float(tauxODP1) * float(self.nombre_face)
+            except (ValueError, TypeError):
+                self.ODP_value = 0  # Gérer les erreurs de conversion
         else:
             self.ODP_value = 0
-
+   
         super(DonneeCollectee, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Donnée #{self.id} pour {self.type_support}"
-    
-    # class Meta:
-    #     permissions = [
-    #         ("view_donneecollectee", "Can view DonneeCollectee"),
-    #         ("add_donneecollectee", "Can add DonneeCollectee"),
-    #         ("change_donneecollectee", "Can change DonneeCollectee"),
-    #         ("delete_donneecollectee", "Can delete DonneeCollectee"),
-    #     ]
-
-# def calculate_tsp(instance):
-#     return instance.surface * instance.duree * 7
-
-# def calculate_odp_value(instance):
-#     return instance.surfaceODP * instance.duree * 7 if instance.ODP else 0
-
-# @receiver(pre_save, sender=DonneeCollectee)
-# def update_tsp_and_odp_value(sender, instance, **kwargs):
-#     instance.TSP = calculate_tsp(instance)
-#     instance.ODP_value = calculate_odp_value(instance)
-    
-    # Ajoutez d'autres champs pour les données collectées, comme des statistiques, etc.
 
     

@@ -75,7 +75,7 @@ class VilleListe(ListCreateAPIView):
     # permission_classes = [IsLanfia]
     queryset = Ville.objects.all()
     serializer_class = VilleSerializers
-    pagination_class = NoPagination  # Utilisez votre pagination personnalisée
+    # pagination_class = NoPagination  # Utilisez votre pagination personnalisée
 
 class VilleListeP(ListCreateAPIView):
     # permission_classes = [IsLanfia]

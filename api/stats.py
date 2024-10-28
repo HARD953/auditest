@@ -7,21 +7,59 @@ from django.db.models import FloatField
 from django.db.models.functions import Cast
 from .models import DonneeCollectee
 from datetime import datetime
+from rest_framework.permissions import IsAuthenticated
+from .serializers import DonneeCollecteeSerializer
+from rest_framework import generics
 
-class TotalCollectedDataView(APIView):
-    def get(self, request, start_date=None, end_date=None):
-        # Convertir les dates en objets date si elles sont fournies
-        if start_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-        if end_date:
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+class TotalCollectedDataView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]  # Require the user to be authenticated
+    serializer_class = DonneeCollecteeSerializer
 
-        # Définir les filtres de date en fonction des paramètres fournis
-        date_filters = {}
-        if start_date:
-            date_filters['create__date__gte'] = start_date
-        if end_date:
-            date_filters['create__date__lte'] = end_date
+    def post(self, request, *args, **kwargs):
+        filters_dict = self.request.data
+
+        # Initialize the queryset
+        queryset = DonneeCollectee.objects.all()  # Make sure to initialize the queryset
+
+        # Get date range filters
+        start_date_str = filters_dict.get('start_date')
+        end_date_str = filters_dict.get('end_date')
+
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+
+        # Apply date filters
+        if start_date and end_date:
+            queryset = queryset.filter(create__date__range=(start_date, end_date))
+        elif start_date:
+            queryset = queryset.filter(create__date__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(create__date__lte=end_date)
+
+        # Field mapping
+        field_mapping = {
+            'entreprise': 'entreprise',
+            'Marque': 'Marque',
+            'district': 'district',
+            'region': 'region',
+            'commune': 'commune',
+            'ville': 'ville',
+            'quartier': 'quartier',
+            'type_support': 'type_support',
+            'canal': 'canal',
+            'etat_support': 'etat_support',
+            'typesite': 'typesite',
+            'visibilite': 'visibilite',
+            'anciennete': 'anciennete',
+            'duree': 'duree',
+            'surface': 'surface'
+        }
+
+        # Apply dynamic filters
+        for key, value in filters_dict.items():
+            if key in field_mapping and key not in ['start_date', 'end_date']:
+                field_name = field_mapping[key]
+                queryset = queryset.filter(**{f'{field_name}__icontains': value})
 
         # Agrégations par commune avec les filtres de date
         if self.request.user.is_agent:

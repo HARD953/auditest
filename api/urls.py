@@ -6,12 +6,12 @@ from .marque1 import *
 from .statagent import *
 from .etatsupport import *
 from .filtre import *
-
+from .filtreg import *
 from .importdata import*
 
 urlpatterns = [
     path('importerdonneesexcel/', importer_donnees_de_excel, name='importer_donnees_excel'),
-    path('donneescollectees/', DonneeCollecteeList.as_view(), name='donnee-collectee-list'),
+    path('donneescollectees/', DonneeCollecteeList.as_view(), name='donnee-collectee-list'), #Ok
     path('agent/', DonneeCollecteeListAgent.as_view(), name='all-collectee-list'),
     path('agent/<int:pk>/', DonneeCollecteeDetailView1.as_view(), name='all-collectee-list1'),
     path('donneescollecteesall/', DonneeCollecteeListAll.as_view(), name='donnee-collectee-list'),
@@ -40,9 +40,10 @@ urlpatterns = [
     path('statagent/<str:start_date>/<str:end_date>/', StatsByAgent.as_view(), name='general-agent'),
     path('deletedata/<str:start_date>/<str:end_date>/', DeleData.as_view(), name='delete-data'),
     path('statagentid/<str:start_date>/<str:end_date>/<int:agent_id>/', StatsByAgent.as_view(), name='general-agents'),
-    path('gcollecte/<str:start_date>/<str:end_date>/', GTotalCollectedDataView.as_view(), name='general-statistics'),
+    path('gcollecte/', GTotalCollectedDataView.as_view(), name='general-statistics'), #Ok
     path('collecte/<str:start_date>/<str:end_date>/', TotalCollectedDataView.as_view(), name='statistics-etat'),
     path('collectem/<str:start_date>/<str:end_date>/', GTotalCollectedDataViewM.as_view(), name='statistics-marque'),
+    path('filtregeneral/', TotalCollectedDataView.as_view(), name='statistics-marque'),
 
     # Filtre
     path('fetat/', EtatListViewF.as_view(), name='etat'),
@@ -59,4 +60,22 @@ urlpatterns = [
     path('fquartier/', QuartierListe.as_view(), name='quartier1'),
     path('quartier/', QuartierCommune.as_view(), name='quartier2'),
     path('quartier/<int:pk>/', QuartierCommuneDetail.as_view(), name='quartier3'),
+
+    path('region/', RegionApp.as_view(), name='region'),
+    path('fregion/', RegionAppFiltre.as_view(), name='fregion'),
+    path('district/', DistrictApp.as_view(), name='district'),
+    path('fdistrict/', DistrictAppFiltre.as_view(), name='fdistrict'),
+    path('affectation/', AffectationApp.as_view(), name='affectation'),
+
+    path('dregion/<int:pk>/', RegionAppDetail.as_view(), name='region'),
+    path('dfregion/<int:pk>/', RegionAppFiltreDetail.as_view(), name='fregion'),
+    path('ddistrict/<int:pk>/', DistrictAppDetail.as_view(), name='district'),
+    path('dfdistrict/<int:pk>/', DistrictAppFiltreDetail.as_view(), name='fdistrict'),
+    path('daffectation/<int:pk>/', AffectationAppDetail.as_view(), name='affectation'),
+
+    path('village/', VillageApp.as_view(), name='village'),
+    path('fvillage/', VillageAppFiltre.as_view(), name='fvillage'),
+    path('dvillage/<int:pk>/', VillageAppFiltreDetail.as_view(), name='dvillage'),
+    path('quartiersco/', QuartiersByCommuneView.as_view(), name='quartiers_by_commune'),
 ]
+
